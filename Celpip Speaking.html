@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CELPIP Speaking Practice — Tasks 1–8</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--surface:#181c27;--card:#1e2333;--border:#2a3045;--border2:#3a4260;
+  --text:#e8ecf4;--muted:#7a87a8;--dim:#4a5478;
+  --blue:#4f8ef7;--blue-bg:#1a2540;--blue-light:#c8dafe;
+  --amber:#f59e0b;--amber-bg:#271e0a;--amber-light:#fde68a;
+  --green:#34d399;--green-bg:#0a2018;--green-light:#a7f3d0;
+  --accent:#6366f1;--accent2:#818cf8;
+  --radius:10px;--radius-lg:14px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:1rem;height:54px;position:sticky;top:0;z-index:200}
+.logo{font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;color:var(--text);letter-spacing:-0.02em;white-space:nowrap}
+.logo span{color:var(--accent2)}
+.badge{background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;font-size:0.68rem;font-weight:600;padding:2px 8px;border-radius:20px;letter-spacing:.04em;white-space:nowrap}
+
+/* TASK STRIP — always visible */
+.task-strip{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:6px;height:50px;position:sticky;top:54px;z-index:190;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.task-strip::-webkit-scrollbar{height:3px}
+.task-strip::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+.tstripbtn{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:0.78rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;font-family:'DM Sans',sans-serif}
+.tstripbtn:hover{border-color:var(--border2);color:var(--text)}
+.tstripbtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.tstripbtn .tnum{width:20px;height:20px;border-radius:6px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:0.7rem;font-weight:700}
+.tstripbtn:not(.active) .tnum{background:var(--border);color:var(--muted)}
+
+/* LAYOUT */
+.layout{display:flex;flex:1;min-height:0}
+
+/* SIDEBAR — desktop only */
+.sidebar{width:210px;background:var(--surface);border-right:1px solid var(--border);padding:1.25rem 0;position:sticky;top:104px;height:calc(100vh - 104px);overflow-y:auto;flex-shrink:0}
+.sidebar-label{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--dim);padding:0 1.1rem;margin-bottom:.4rem}
+.task-item{display:flex;align-items:center;gap:.65rem;padding:.55rem 1.1rem;cursor:pointer;transition:background .15s;border-left:3px solid transparent}
+.task-item:hover{background:rgba(99,102,241,.08)}
+.task-item.active{background:rgba(99,102,241,.13);border-left-color:var(--accent2)}
+.task-num{width:26px;height:26px;border-radius:7px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:.72rem;font-weight:700;color:var(--muted);flex-shrink:0;transition:all .15s}
+.task-item.active .task-num{background:var(--accent);border-color:var(--accent);color:#fff}
+.task-name-side{font-size:.78rem;color:var(--muted);line-height:1.3}
+.task-item.active .task-name-side{color:var(--text);font-weight:500}
+
+/* MAIN */
+.main{flex:1;padding:1.75rem 2rem;max-width:860px;width:100%}
+.task-panel{display:none}
+.task-panel.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* TASK HEADER */
+.task-title{font-family:'Sora',sans-serif;font-size:1.3rem;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-bottom:.35rem}
+.task-meta{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:1.25rem}
+.meta-pill{display:inline-flex;align-items:center;gap:4px;background:var(--card);border:1px solid var(--border);padding:3px 9px;border-radius:20px;font-size:.72rem;color:var(--muted)}
+.meta-pill svg{width:12px;height:12px;opacity:.7}
+
+/* SUB-TABS */
+.subtabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:4px;margin-bottom:1.4rem;width:fit-content}
+.stab{padding:6px 16px;border-radius:7px;font-size:.8rem;font-weight:500;cursor:pointer;color:var(--muted);background:transparent;border:none;transition:all .15s;font-family:'DM Sans',sans-serif}
+.stab:hover{color:var(--text)}
+.stab.active{background:var(--accent);color:#fff}
+.sub-section{display:none}
+.sub-section.active{display:block}
+
+/* TEMPLATE CARDS */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:1.1rem}
+.tpl-card{border-radius:var(--radius-lg);padding:1rem;border:1px solid}
+.tpl-card.blue{background:var(--blue-bg);border-color:rgba(79,142,247,.3)}
+.tpl-card.amber{background:var(--amber-bg);border-color:rgba(245,158,11,.3)}
+.tpl-card.green{background:var(--green-bg);border-color:rgba(52,211,153,.3)}
+.tpl-head{font-family:'Sora',sans-serif;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.7rem;display:flex;align-items:center;gap:5px}
+.tpl-card.blue .tpl-head{color:var(--blue)}
+.tpl-card.amber .tpl-head{color:var(--amber)}
+.tpl-card.green .tpl-head{color:var(--green)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tpl-card.blue .dot{background:var(--blue)}
+.tpl-card.amber .dot{background:var(--amber)}
+.tpl-card.green .dot{background:var(--green)}
+.phrase{font-size:.77rem;line-height:1.6;padding:7px 9px;border-radius:7px;margin-bottom:5px;color:var(--text)}
+.tpl-card.blue .phrase{background:rgba(79,142,247,.1);border:1px solid rgba(79,142,247,.2)}
+.tpl-card.amber .phrase{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2)}
+.tpl-card.green .phrase{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2)}
+.fill{color:var(--accent2);font-style:italic;font-weight:500}
+.info-bar{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:.7rem 1rem;font-size:.78rem;color:var(--muted);line-height:1.55}
+.info-bar strong{color:var(--text);font-weight:500}
+
+/* PRACTICE */
+.prompt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:7px;margin-bottom:11px}
+.prompt-btn{padding:9px 11px;text-align:left;border-radius:var(--radius);border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.76rem;cursor:pointer;transition:all .15s;line-height:1.4;font-family:'DM Sans',sans-serif}
+.prompt-btn:hover{border-color:var(--border2);color:var(--text);background:var(--surface)}
+.prompt-btn.sel{border-color:var(--accent);background:rgba(99,102,241,.12);color:var(--accent2)}
+.custom-row{display:flex;gap:9px;margin-bottom:11px;align-items:flex-start}
+.custom-row textarea{flex:1;resize:vertical;font-size:.8rem;font-family:'DM Sans',sans-serif;border-radius:var(--radius);border:1px solid var(--border);padding:8px 11px;min-height:52px;background:var(--card);color:var(--text);outline:none;transition:border-color .15s}
+.custom-row textarea:focus{border-color:var(--accent)}
+.custom-row textarea::placeholder{color:var(--dim)}
+.gen-btn{padding:9px 18px;border-radius:var(--radius);border:none;background:linear-gradient(135deg,var(--accent),#4f46e5);color:#fff;font-size:.82rem;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap}
+.gen-btn:hover{opacity:.9}
+.gen-btn:active{transform:scale(.97)}
+.gen-btn:disabled{opacity:.4;cursor:not-allowed}
+.status-line{font-size:.76rem;color:var(--muted);margin-bottom:9px;min-height:17px;display:flex;align-items:center;gap:5px}
+.spinner{width:12px;height:12px;border:2px solid var(--border2);border-top-color:var(--accent2);border-radius:50%;animation:spin .65s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.response-area{display:flex;flex-direction:column;gap:8px}
+.rpart{padding:11px 13px;border-radius:var(--radius);font-size:.81rem;line-height:1.7}
+.rpart-label{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.rpart.opening{background:var(--blue-bg);border:1px solid rgba(79,142,247,.25);color:var(--blue-light)}
+.rpart.opening .rpart-label{color:var(--blue)}
+.rpart.body{background:var(--amber-bg);border:1px solid rgba(245,158,11,.25);color:var(--amber-light)}
+.rpart.body .rpart-label{color:var(--amber)}
+.rpart.closing{background:var(--green-bg);border:1px solid rgba(52,211,153,.25);color:var(--green-light)}
+.rpart.closing .rpart-label{color:var(--green)}
+
+/* TIMER */
+.timer-wrap{display:flex;flex-direction:column;align-items:center;gap:1.25rem;padding:.75rem 0}
+.phase-pills{display:flex;gap:7px;flex-wrap:wrap;justify-content:center}
+.pp{padding:4px 14px;border-radius:20px;font-size:.72rem;font-weight:500;border:1px solid var(--border);color:var(--dim);background:var(--card);transition:all .2s}
+.pp.cur{background:rgba(79,142,247,.15);border-color:var(--blue);color:var(--blue)}
+.pp.dn{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.4);color:var(--green)}
+.ring-wrap{position:relative}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-secs{font-family:'Sora',sans-serif;font-size:2.6rem;font-weight:700;color:var(--text);line-height:1}
+.ring-label{font-size:.72rem;color:var(--muted);margin-top:3px}
+.ring-track{fill:none;stroke:var(--card);stroke-width:8}
+.ring-prog{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s linear}
+.timer-btns{display:flex;gap:9px}
+.tbtn{padding:9px 22px;border-radius:var(--radius);font-size:.82rem;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--text);transition:all .15s}
+.tbtn:hover{border-color:var(--border2);background:var(--surface)}
+.tbtn.primary{background:linear-gradient(135deg,var(--accent),#4f46e5);border-color:transparent;color:#fff}
+.tbtn.primary:hover{opacity:.9}
+.tbtn:disabled{opacity:.4;cursor:not-allowed}
+.timer-tip{font-size:.72rem;color:var(--dim);text-align:center}
+
+/* RESPONSIVE */
+@media(max-width:760px){
+  .sidebar{display:none}
+  .main{padding:1.1rem}
+  .tpl-grid{grid-template-columns:1fr}
+  .task-title{font-size:1.1rem}
+  .subtabs{width:100%}
+  .stab{flex:1;text-align:center}
+}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">CELPIP <span>Speaking</span></div>
+  <div class="badge">Tasks 1–8</div>
+</header>
+
+<!-- Always-visible task strip -->
+<div class="task-strip" id="task-strip"></div>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-label">Speaking Tasks</div>
+    <div id="sidebar-nav"></div>
+  </nav>
+  <main class="main" id="main-area"></main>
+</div>
+
+<script>
+const TASKS = [
+  {
+    id:1, name:"Giving Advice", short:"Advice to friend/family",
+    prepTime:30, speakTime:90,
+    desc:"You will read a message from a friend or family member who needs help with a personal situation. Give them practical advice and encouragement.",
+    opening:{title:"Opening",phrases:[
+      "Hi <span class='fill'>[Name]</span>, I was so <span class='fill'>[thrilled/surprised/happy]</span> to hear about <span class='fill'>[the situation]</span>!",
+      "I can certainly understand why you might feel a bit <span class='fill'>[hesitant/anxious]</span> about <span class='fill'>[specific challenge]</span>, but I have a few suggestions that should help you navigate this <span class='fill'>[problem]</span>."
+    ]},
+    body:{title:"Body",phrases:[
+      "One thing you might want to consider is <span class='fill'>[suggestion]</span>.",
+      "Another approach that worked well for me in the past was <span class='fill'>[suggestion]</span>.",
+      "If that doesn't appeal to you, you could also try <span class='fill'>[suggestion]</span>."
+    ]},
+    closing:{title:"Closing",phrases:[
+      "Anyway, those are just a few ideas to get you started.",
+      "I'm absolutely confident that once you <span class='fill'>[action]</span>, you're going to <span class='fill'>[positive result]</span>!",
+      "I hope these tips are useful as you prepare for <span class='fill'>[event/task]</span>. Good luck with everything!"
+    ]},
+    prompts:["Friend starting their first job and feeling nervous","Cousin moving to a new city and feeling isolated","Sister wants to go back to school while working full-time","Friend preparing for an important job interview","Neighbour asking how to save money on a tight budget","Friend wants to start exercising but doesn't know where to begin"],
+    systemPrompt:`You are a CELPIP Speaking Task 1 coach. Generate a natural 90-second spoken response (~150-180 words). Return ONLY valid JSON, no markdown:
+{"opening":"2-3 warm sentences. Start with 'Hi [realistic name]'. Acknowledge the situation with empathy.","body":"3 suggestions. Start each with: 'One thing you might want to consider is...', 'Another approach that worked well for me was...', 'If that doesn't appeal to you, you could also try...'","closing":"2 sentences expressing confidence and wishing them luck."}`
+  },
+  {
+    id:2, name:"Personal Experience", short:"Narrative & storytelling",
+    prepTime:30, speakTime:60,
+    desc:"You will be asked to talk about a personal experience or memory. Tell a story with a clear beginning, middle, and reflection.",
+    opening:{title:"Opening",phrases:[
+      "One of the most <span class='fill'>[memorable/interesting]</span> experiences I've had was when I <span class='fill'>[action/event]</span> back in <span class='fill'>[timeframe]</span>.",
+      "It took place at <span class='fill'>[location]</span>, and I remember it clearly because <span class='fill'>[brief reason]</span>."
+    ]},
+    body:{title:"Body",phrases:[
+      "As the <span class='fill'>[event/activity]</span> got underway, I was immediately struck by <span class='fill'>[specific detail]</span>.",
+      "At first, I felt a bit <span class='fill'>[emotion]</span>, but as I continued to <span class='fill'>[action]</span>, I began to realize that <span class='fill'>[new discovery]</span>.",
+      "What made this experience particularly <span class='fill'>[unique/challenging]</span> was <span class='fill'>[factor]</span>."
+    ]},
+    closing:{title:"Closing",phrases:[
+      "Looking back, I would say it was a <span class='fill'>[memorable/adj]</span> adventure that taught me <span class='fill'>[lesson]</span>.",
+      "I'd definitely <span class='fill'>[love/hate]</span> to do something similar again in the future."
+    ]},
+    prompts:["A memorable travel experience","A time you learned something unexpected","Your first day at a new school or job","An experience that changed your perspective","A challenge you overcame successfully","A childhood memory that stands out"],
+    systemPrompt:`You are a CELPIP Speaking Task 2 coach. Generate a natural 60-second spoken response (~120-150 words). Return ONLY valid JSON, no markdown:
+{"opening":"2 sentences: name a specific event, timeframe, and location.","body":"3 sentences: what happened, emotions felt, and what made it unique.","closing":"2 sentences reflecting on the lesson learned and whether you'd do it again."}`
+  },
+  {
+    id:3, name:"Describing a Scene", short:"Picture description",
+    prepTime:30, speakTime:60,
+    desc:"You will look at a photograph and describe what you see in detail — the setting, people, objects, and overall mood.",
+    opening:{title:"Opening",phrases:[
+      "The image depicts a <span class='fill'>[lively/quiet/busy]</span> <span class='fill'>[setting]</span> on what looks like a <span class='fill'>[sunny/winter/busy]</span> day."
+    ]},
+    body:{title:"Body",phrases:[
+      "The first thing that catches my eye is <span class='fill'>[main focal point]</span>.",
+      "To the <span class='fill'>[left/right]</span> of the <span class='fill'>[center object]</span>, I can see <span class='fill'>[subject]</span> in <span class='fill'>[color/type of clothing]</span>.",
+      "Moving toward the background, there is <span class='fill'>[an object/a group]</span> situated <span class='fill'>[near/behind]</span> the <span class='fill'>[object]</span>."
+    ]},
+    closing:{title:"Closing",phrases:[
+      "Overall, the scene is very <span class='fill'>[energetic/serene/other adjective]</span>."
+    ]},
+    prompts:["A busy farmers' market on a sunny morning","A quiet library with students studying","A city park in autumn with people walking","A crowded street at rush hour","Children playing in a playground","A cozy coffee shop with customers"],
+    systemPrompt:`You are a CELPIP Speaking Task 3 coach. Imagine the described scene and generate a natural 60-second spoken response (~120-140 words). Return ONLY valid JSON, no markdown:
+{"opening":"1-2 sentences setting the overall scene, atmosphere, and time of day.","body":"3 sentences: focal point first, then sides using spatial language (left/right), then background details.","closing":"1 vivid sentence giving an overall impression of the mood."}`
+  },
+  {
+    id:4, name:"Making Predictions", short:"Future trends & predictions",
+    prepTime:30, speakTime:60,
+    desc:"You will view a graph or image showing a trend or situation, and predict what might happen in the future based on what you see.",
+    opening:{title:"Opening",phrases:[
+      "Looking at this <span class='fill'>[graph/chart/image]</span>, it's clear that <span class='fill'>[current trend]</span> over the past <span class='fill'>[time period]</span>.",
+      "Based on this pattern, I think it's very likely that <span class='fill'>[your main prediction]</span> in the coming years."
+    ]},
+    body:{title:"Body",phrases:[
+      "One reason I believe this is that <span class='fill'>[supporting factor]</span>, which will probably lead to <span class='fill'>[consequence]</span>.",
+      "Furthermore, if <span class='fill'>[condition]</span>, then <span class='fill'>[outcome]</span> could become even more pronounced.",
+      "On the other hand, there is a possibility that <span class='fill'>[alternative scenario]</span> if <span class='fill'>[counter-factor]</span> comes into play."
+    ]},
+    closing:{title:"Closing",phrases:[
+      "Overall, I believe <span class='fill'>[summary prediction]</span> is the most likely outcome based on the current evidence.",
+      "It will be interesting to see how <span class='fill'>[the situation]</span> develops over time."
+    ]},
+    prompts:["A graph showing rising remote work adoption since 2020","A chart showing declining public transit ridership","A graph showing increasing average temperatures over decades","A chart of growing electric vehicle sales worldwide","A graph showing rising university tuition costs","A chart showing social media usage by age group"],
+    systemPrompt:`You are a CELPIP Speaking Task 4 coach. Generate a natural 60-second spoken response (~120-150 words) about predictions for the given trend. Return ONLY valid JSON, no markdown:
+{"opening":"2 sentences describing the current trend and stating your main prediction.","body":"3 sentences: one supporting reason, one future outcome if trend continues, one alternative scenario.","closing":"2 sentences summarizing your prediction and expressing interest in how it develops."}`
+  },
+  {
+    id:5, name:"Comparing & Persuading", short:"Recommend one of two options",
+    prepTime:30, speakTime:60,
+    desc:"You will see two options and must persuade a friend or family member to choose the one you prefer, explaining why it is the better choice.",
+    opening:{title:"Opening",phrases:[
+      "Hi <span class='fill'>[Name]</span>, I've had a chance to look at both <span class='fill'>[Option 1]</span> and <span class='fill'>[Option 2]</span>, and I strongly feel that we should go with <span class='fill'>[Your Choice]</span>."
+    ]},
+    body:{title:"Body",phrases:[
+      "Even though <span class='fill'>[Your Choice]</span> is <span class='fill'>[downside, e.g. more expensive]</span>, it offers <span class='fill'>[unique feature]</span>, which is far more beneficial than <span class='fill'>[Opposite Option]</span>'s <span class='fill'>[feature]</span>.",
+      "While the other option is <span class='fill'>[benefit, e.g. cheaper]</span>, it lacks <span class='fill'>[essential element]</span>.",
+      "In comparison, <span class='fill'>[your choice]</span> offers <span class='fill'>[important benefit]</span>."
+    ]},
+    closing:{title:"Closing",phrases:[
+      "Ultimately, <span class='fill'>[Your Choice]</span> offers much better value for <span class='fill'>[people involved]</span>.",
+      "Let me know if you agree."
+    ]},
+    prompts:["Downtown condo vs suburban house for a young couple","Gym membership vs home workout equipment","Two-week beach vacation vs a city cultural tour","A well-known restaurant vs a trendy new one for dinner","Online course vs in-person classes for a new skill","Buying a new car vs using public transit"],
+    systemPrompt:`You are a CELPIP Speaking Task 5 coach. Generate a natural 60-second spoken response (~120-150 words) recommending ONE option clearly. Return ONLY valid JSON, no markdown:
+{"opening":"1 sentence: greet the friend by a realistic name and clearly state your recommended option.","body":"3 sentences: (1) acknowledge your choice's downside but explain why it's still better, (2) point out what the other option lacks, (3) highlight your choice's key advantage.","closing":"2 short confident sentences wrapping up and inviting the friend's agreement."}`
+  },
+  {
+    id:6, name:"Dealing with a Situation", short:"Handle a difficult conversation",
+    prepTime:30, speakTime:60,
+    desc:"You will be placed in an awkward or difficult real-life situation and must respond tactfully and persuasively in a direct conversation.",
+    opening:{title:"Opening",phrases:[
+      "Hey <span class='fill'>[name]</span>, do you have a quick second?",
+      "I <span class='fill'>[overheard/want to talk to you about]</span> <span class='fill'>[the situation]</span>."
+    ]},
+    body:{title:"Body",phrases:[
+      "I totally understand your position on <span class='fill'>[the issue]</span>, but I'd like to offer a different perspective that might help us out here.",
+      "I completely see why you feel that <span class='fill'>[view A]</span> is important. However, in this specific instance, <span class='fill'>[your view]</span> may be more <span class='fill'>[beneficial/appropriate]</span> because <span class='fill'>[reason]</span>."
+    ]},
+    closing:{title:"Closing",phrases:[
+      "What do you think about <span class='fill'>[your proposed solution/view]</span>?"
+    ]},
+    prompts:["A coworker playing loud music in a shared office","A neighbour whose dog is disturbing your sleep","A friend who keeps cancelling plans last minute","A classmate not contributing to a group project","A store employee who gave you the wrong change","A restaurant server who brought the wrong order"],
+    systemPrompt:`You are a CELPIP Speaking Task 6 coach. Generate a natural 60-second spoken response (~110-140 words) handling the situation tactfully. Return ONLY valid JSON, no markdown:
+{"opening":"2 short sentences: get the person's attention and introduce the topic naturally.","body":"2-3 sentences: acknowledge their perspective, then offer your view with a clear reason why your approach works better for both parties.","closing":"1 question inviting the other person to agree or respond positively."}`
+  },
+  {
+    id:7, name:"Expressing an Opinion", short:"Agree or disagree on a topic",
+    prepTime:30, speakTime:90,
+    desc:"You will be asked to give your opinion on a statement or issue. State your position clearly, support it with two arguments, and acknowledge the other side.",
+    opening:{title:"Opening",phrases:[
+      "In my opinion, <span class='fill'>[topic]</span> is a <span class='fill'>[positive/negative]</span> development for <span class='fill'>[group/society]</span>."
+    ]},
+    body:{title:"Body",phrases:[
+      "First of all, <span class='fill'>[point 1]</span> significantly impacts <span class='fill'>[aspect]</span>.",
+      "Furthermore, from a <span class='fill'>[new perspective]</span>, <span class='fill'>[point 2]</span> allows for <span class='fill'>[result]</span>.",
+      "While some may argue that <span class='fill'>[opposing view]</span>, I believe the benefits of <span class='fill'>[your view]</span> far outweigh the drawbacks because <span class='fill'>[reasoning]</span>."
+    ]},
+    closing:{title:"Closing",phrases:[
+      "In conclusion, because of <span class='fill'>[summary of point 1]</span> and <span class='fill'>[summary of point 2]</span>, I firmly advocate for <span class='fill'>[your view]</span>."
+    ]},
+    prompts:["Should social media platforms be regulated by governments?","Is working from home better than working in an office?","Should university education be free for all students?","Is technology making people less social?","Should cities invest more in cycling infrastructure?","Is it better to raise children in a city or the countryside?"],
+    systemPrompt:`You are a CELPIP Speaking Task 7 coach. Generate a natural 90-second spoken response (~150-180 words). Take a clear stance and defend it. Return ONLY valid JSON, no markdown:
+{"opening":"1 sentence clearly stating your position on the issue.","body":"3 sentences: (1) first main argument, (2) second argument from a different angle, (3) acknowledge and refute the opposing view.","closing":"1 strong sentence summarizing both key points and reaffirming your stance."}`
+  },
+  {
+    id:8, name:"Describing an Unusual Scene", short:"Call a friend about something odd",
+    prepTime:30, speakTime:60,
+    desc:"You will see an unusual or surprising scene and must describe it to a friend as if calling them on the phone, as vividly as possible.",
+    opening:{title:"Opening",phrases:[
+      "Hey <span class='fill'>[Name]</span>, you won't believe what I'm looking at right now.",
+      "I'm at <span class='fill'>[Location]</span> and there's a very unusual scene unfolding."
+    ]},
+    body:{title:"Body",phrases:[
+      "Right in the middle of the area, there are <span class='fill'>[object/people]</span> who are <span class='fill'>[action]</span>.",
+      "The whole scene is set against <span class='fill'>[background detail]</span>."
+    ]},
+    closing:{title:"Closing",phrases:[
+      "It's such a <span class='fill'>[strange/funny/incredible]</span> sight that I thought you might want to <span class='fill'>[action required]</span>.",
+      "What do you think? + <span class='fill'>[Question required by the prompt]</span>"
+    ]},
+    prompts:["People in business suits building sandcastles on a beach","Someone walking a dozen cats on leashes in a park","A marching band playing inside a grocery store","A flock of flamingos standing in a city parking lot","Office workers having a pillow fight in the street","A chef cooking a full meal on top of a building"],
+    systemPrompt:`You are a CELPIP Speaking Task 8 coach. Generate a vivid, enthusiastic 60-second spoken response (~120-140 words) describing the unusual scene to a friend on the phone. Return ONLY valid JSON, no markdown:
+{"opening":"2 short sentences: grab the friend's attention and set the location.","body":"2-3 sentences vividly describing the most unusual elements. Use specific details, colors, and actions.","closing":"2 sentences: express your reaction and ask the friend a relevant question or suggest an action."}`
+  }
+];
+
+/* ── STATE ── */
+let currentTask = 0;
+const selectedPrompts = {}; // per-task selected prompt
+const timerStates = {};
+const CIRC = 2 * Math.PI * 72; // 452.39
+
+/* ── BUILD UI ── */
+function buildStrip() {
+  const strip = document.getElementById('task-strip');
+  TASKS.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tstripbtn' + (i === 0 ? ' active' : '');
+    btn.id = 'strip-' + i;
+    btn.innerHTML = `<span class="tnum">${t.id}</span>${t.name}`;
+    btn.onclick = () => switchTask(i);
+    strip.appendChild(btn);
+  });
+}
+
+function buildSidebar() {
+  const nav = document.getElementById('sidebar-nav');
+  TASKS.forEach((t, i) => {
+    const el = document.createElement('div');
+    el.className = 'task-item' + (i === 0 ? ' active' : '');
+    el.id = 'sideitem-' + i;
+    el.onclick = () => switchTask(i);
+    el.innerHTML = `<div class="task-num">${t.id}</div><div class="task-name-side">${t.name}</div>`;
+    nav.appendChild(el);
+  });
+}
+
+function buildCard(section, color) {
+  return `<div class="tpl-card ${color}">
+    <div class="tpl-head"><div class="dot"></div>${section.title}</div>
+    ${section.phrases.map(p => `<div class="phrase">${p}</div>`).join('')}
+  </div>`;
+}
+
+function buildPanels() {
+  const main = document.getElementById('main-area');
+  TASKS.forEach((t, i) => {
+    const panel = document.createElement('section');
+    panel.className = 'task-panel' + (i === 0 ? ' active' : '');
+    panel.id = 'panel-' + i;
+    panel.innerHTML = `
+      <div class="task-title">Task ${t.id}: ${t.name}</div>
+      <div class="task-meta">
+        <span class="meta-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Prep: ${t.prepTime}s
+        </span>
+        <span class="meta-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+          Speak: ${t.speakTime}s
+        </span>
+        <span style="color:var(--muted);font-size:.78rem">${t.short}</span>
+      </div>
+
+      <div class="subtabs">
+        <button class="stab active" id="stab-${i}-template" onclick="showSub(${i},'template')">Template</button>
+        <button class="stab" id="stab-${i}-practice" onclick="showSub(${i},'practice')">Generate Sample</button>
+        <button class="stab" id="stab-${i}-timer" onclick="showSub(${i},'timer')">Timer</button>
+      </div>
+
+      <div class="sub-section active" id="sub-${i}-template">
+        <div class="tpl-grid">
+          ${buildCard(t.opening,'blue')}
+          ${buildCard(t.body,'amber')}
+          ${buildCard(t.closing,'green')}
+        </div>
+        <div class="info-bar"><strong>Task ${t.id}:</strong> ${t.desc}</div>
+      </div>
+
+      <div class="sub-section" id="sub-${i}-practice">
+        <div class="prompt-grid" id="pgrid-${i}">
+          ${t.prompts.map((p,pi)=>`<button class="prompt-btn" id="pb-${i}-${pi}" onclick="selectPrompt(${i},${pi})">${p}</button>`).join('')}
+        </div>
+        <div class="custom-row">
+          <textarea id="custom-${i}" placeholder="Or type your own scenario…"></textarea>
+          <button class="gen-btn" id="genbtn-${i}" onclick="generate(${i})">✦ Generate</button>
+        </div>
+        <div class="status-line" id="status-${i}"></div>
+        <div class="response-area" id="resp-${i}"></div>
+      </div>
+
+      <div class="sub-section" id="sub-${i}-timer">
+        <div class="timer-wrap">
+          <div class="phase-pills">
+            <div class="pp cur" id="pp-prep-${i}">Prepare — ${t.prepTime}s</div>
+            <div class="pp" id="pp-speak-${i}">Speak — ${t.speakTime}s</div>
+            <div class="pp" id="pp-done-${i}">Done</div>
+          </div>
+          <div class="ring-wrap">
+            <svg width="170" height="170" viewBox="0 0 170 170">
+              <circle class="ring-track" cx="85" cy="85" r="72"/>
+              <circle class="ring-prog" id="ring-${i}" cx="85" cy="85" r="72"
+                stroke="#4f8ef7" stroke-dasharray="${CIRC.toFixed(2)}" stroke-dashoffset="0"
+                transform="rotate(-90 85 85)"/>
+            </svg>
+            <div class="ring-center">
+              <div class="ring-secs" id="rsecs-${i}">${t.prepTime}</div>
+              <div class="ring-label" id="rlabel-${i}">prep time</div>
+            </div>
+          </div>
+          <div class="timer-btns">
+            <button class="tbtn primary" id="tbtn-${i}" onclick="startTimer(${i})">▶ Start</button>
+            <button class="tbtn" onclick="resetTimer(${i})">↺ Reset</button>
+          </div>
+          <div class="timer-tip">Auto-switches: ${t.prepTime}s prep → ${t.speakTime}s speaking</div>
+        </div>
+      </div>
+    `;
+    main.appendChild(panel);
+  });
+}
+
+/* ── SWITCH TASK ── */
+function switchTask(i) {
+  if (i === currentTask) return;
+  // stop any running timer on the current task
+  stopTimer(currentTask);
+  currentTask = i;
+
+  // update strip
+  document.querySelectorAll('.tstripbtn').forEach((b, idx) => b.classList.toggle('active', idx === i));
+  // update sidebar
+  document.querySelectorAll('.task-item').forEach((el, idx) => el.classList.toggle('active', idx === i));
+  // update panels
+  document.querySelectorAll('.task-panel').forEach((el, idx) => el.classList.toggle('active', idx === i));
+  // always reset to Template sub-tab on task switch
+  showSub(i, 'template');
+  // scroll strip button into view
+  const stripBtn = document.getElementById('strip-' + i);
+  if (stripBtn) stripBtn.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+}
+
+/* ── SHOW SUB-TAB ── */
+function showSub(taskIdx, name) {
+  ['template','practice','timer'].forEach(n => {
+    const sec = document.getElementById(`sub-${taskIdx}-${n}`);
+    const tab = document.getElementById(`stab-${taskIdx}-${n}`);
+    if (sec) sec.classList.toggle('active', n === name);
+    if (tab) tab.classList.toggle('active', n === name);
+  });
+}
+
+/* ── SELECT PROMPT ── */
+function selectPrompt(taskIdx, promptIdx) {
+  TASKS[taskIdx].prompts.forEach((_, pi) => {
+    const b = document.getElementById(`pb-${taskIdx}-${pi}`);
+    if (b) b.classList.toggle('sel', pi === promptIdx);
+  });
+  selectedPrompts[taskIdx] = TASKS[taskIdx].prompts[promptIdx];
+  const cust = document.getElementById(`custom-${taskIdx}`);
+  if (cust) cust.value = '';
+}
+
+/* ── GENERATE ── */
+async function generate(taskIdx) {
+  const custom = (document.getElementById(`custom-${taskIdx}`)?.value || '').trim();
+  const prompt = custom || selectedPrompts[taskIdx] || '';
+  if (!prompt) { alert('Please select a prompt or type your own scenario first.'); return; }
+
+  const btn = document.getElementById(`genbtn-${taskIdx}`);
+  const status = document.getElementById(`status-${taskIdx}`);
+  const resp = document.getElementById(`resp-${taskIdx}`);
+  btn.disabled = true;
+  resp.innerHTML = '';
+  status.innerHTML = '<div class="spinner"></div> Generating a sample response…';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: TASKS[taskIdx].systemPrompt,
+        messages:[{role:'user', content:`CELPIP Task ${TASKS[taskIdx].id} scenario: ${prompt}`}]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content || []).map(c => c.text || '').join('');
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    resp.innerHTML = `
+      <div class="rpart opening"><div class="rpart-label">Opening</div>${parsed.opening}</div>
+      <div class="rpart body"><div class="rpart-label">Body</div>${parsed.body}</div>
+      <div class="rpart closing"><div class="rpart-label">Closing</div>${parsed.closing}</div>
+    `;
+    status.innerHTML = '✓ Sample ready — switch to the Timer tab to practise speaking it aloud!';
+  } catch(e) {
+    status.innerHTML = '⚠ Something went wrong. Please try again.';
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ── TIMER ── */
+function getTS(i) {
+  if (!timerStates[i]) timerStates[i] = {state:'idle', remaining: TASKS[i].prepTime, interval:null};
+  return timerStates[i];
+}
+
+function updateTimerUI(i) {
+  const ts = getTS(i);
+  const t = TASKS[i];
+  const ring = document.getElementById(`ring-${i}`);
+  const secs = document.getElementById(`rsecs-${i}`);
+  const lbl  = document.getElementById(`rlabel-${i}`);
+  const prep = document.getElementById(`pp-prep-${i}`);
+  const spk  = document.getElementById(`pp-speak-${i}`);
+  const dn   = document.getElementById(`pp-done-${i}`);
+  if (!ring) return;
+  prep.className='pp'; spk.className='pp'; dn.className='pp';
+  if (ts.state==='idle'||ts.state==='prep') {
+    ring.setAttribute('stroke-dashoffset', (CIRC*(1-ts.remaining/t.prepTime)).toFixed(2));
+    ring.setAttribute('stroke','#4f8ef7');
+    secs.textContent = ts.remaining;
+    lbl.textContent  = 'prep time';
+    prep.className='pp cur';
+  } else if (ts.state==='speak') {
+    ring.setAttribute('stroke-dashoffset', (CIRC*(1-ts.remaining/t.speakTime)).toFixed(2));
+    ring.setAttribute('stroke','#34d399');
+    secs.textContent = ts.remaining;
+    lbl.textContent  = 'speaking';
+    prep.className='pp dn'; spk.className='pp cur';
+  } else {
+    ring.setAttribute('stroke-dashoffset', CIRC.toFixed(2));
+    ring.setAttribute('stroke','#34d399');
+    secs.textContent='✓'; lbl.textContent='finished!';
+    prep.className='pp dn'; spk.className='pp dn'; dn.className='pp cur';
+  }
+}
+
+function startTimer(i) {
+  const ts = getTS(i);
+  if (ts.state!=='idle') return;
+  const t = TASKS[i];
+  ts.state = 'prep'; ts.remaining = t.prepTime;
+  const btn = document.getElementById(`tbtn-${i}`);
+  if(btn){btn.disabled=true;btn.textContent='Running…';}
+  updateTimerUI(i);
+  ts.interval = setInterval(()=>{
+    ts.remaining--;
+    if (ts.remaining <= 0) {
+      if (ts.state==='prep') { ts.state='speak'; ts.remaining=t.speakTime; }
+      else { ts.state='done'; clearInterval(ts.interval); ts.interval=null;
+        if(btn){btn.disabled=false;btn.textContent='✓ Done';} }
+    }
+    updateTimerUI(i);
+  }, 1000);
+}
+
+function stopTimer(i) {
+  const ts = timerStates[i];
+  if (ts && ts.interval) { clearInterval(ts.interval); ts.interval=null; }
+}
+
+function resetTimer(i) {
+  stopTimer(i);
+  timerStates[i] = {state:'idle', remaining:TASKS[i].prepTime, interval:null};
+  const btn = document.getElementById(`tbtn-${i}`);
+  if(btn){btn.disabled=false;btn.textContent='▶ Start';}
+  updateTimerUI(i);
+}
+
+/* ── INIT ── */
+buildStrip();
+buildSidebar();
+buildPanels();
+</script>
+</body>
+</html>
